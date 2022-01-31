@@ -129,9 +129,23 @@ These functions all have similar syntax: once you’ve mastered one, you can use
 
 Let's work with the `read_csv` option first: Often you'll be loading in Comma-separated values (.csv) files, basically slimmed-down Excel files.
 
-The first argument to read_csv() is the most important: it’s the path to the file to read. You have to put the data somewhere useful for the package to load your data. 
+The first argument to read_csv() is the most important: it’s the path to the file to read.
 
-One common thing to do can do is place it right next to your R project files. R's starting point when load files is that they are placed in the R project folder, so that you can easily read it:
+The `read_csv()` function can read both from online and from an online location - with a URL - or from your local data.
+
+Let's try loading .csv file called heights.csv from an online location, and saving that to an object called `heights`
+
+```{r}
+
+heights <- read_csv("https://raw.githubusercontent.com/phdskat/RCrashcourse2/main/heights.csv")
+
+```
+
+We can do the exact same from your loca data - if you download the `heights.csv` file from the [RCrashcourse2 repository](https://github.com/phdskat/RCrashcourse2).
+
+You then have to put the data somewhere useful for the package to load your data. 
+
+One common thing to do can do is place it right next to your R project files, if you have set up an R project. R's starting point when load files is that they are placed in the R project folder, so that you can easily read it:
 
 ```{r}
 
@@ -177,15 +191,17 @@ The point of the pipe is to help you write code in a way that is easier to read 
 
 ```{r}
 
-# To see the head() or our data, we can either do this:
+# To see the head() or our data, we can either do this, which is the old way of doing things:
 
 head(heights)
 
-# Or we can pass the data object, with the pipe, to the head() function. It's the same outcome.
+# Or we can pass the data object, with the pipe, to the head() function. It's the same outcome. We will use this going forward.
 
 heights %>% head()
 
 ```
+
+### Then pull request it into Florian's github
 
 This is trivial when doing single operations, but when you do multiple ones, as we'll see below, it is incredibly useful!
 
@@ -195,12 +211,6 @@ This is trivial when doing single operations, but when you do multiple ones, as 
 
 ```{r}
 
-# old school way
-
-filter(heights, age == 45)
-
-# with the pipe
-
 heights %>% filter(age==45)
 
 ```
@@ -208,7 +218,6 @@ heights %>% filter(age==45)
 When you run that line of code, the `dplyr` package in tidyverse executes the filtering operation and returns a new data frame. If you want to save the result, you’ll need to use the assignment operator, `<-`:
 
 ```{r}
-age45 <- filter(heights, age == 45)
 
 age45 <- heights %>% filter(age == 45)
 
@@ -219,7 +228,6 @@ age45 <- heights %>% filter(age == 45)
 `arrange()` works similarly to `filter()` except that instead of selecting rows, it changes their order. It takes a data frame and a set of column names (or more complicated expressions) to order by. If you provide more than one column name, each additional column will be used to break ties in the values of preceding columns:
 
 ```{r}
-arrange(heights,age)
 
 heights %>% arrange(age)
 
@@ -228,7 +236,6 @@ heights %>% arrange(age)
 Use `desc()` to re-order by a column in descending order:
 
 ```{r}
-arrange(heights,desc(age))
 
 heights %>% arrange(desc(age))
 
@@ -252,11 +259,7 @@ Besides selecting sets of existing columns, it’s often useful to add new colum
 
 ```{r}
 
-# add a new column calculating the height of each person in cm
-
-mutate(heights, heightcm = height * 2.54)
-
-# or we can use the pipe to first add a new column, then arrange by it, so we get a list of the tallest people (in cm)
+# we can use the pipe to first add a new column, then arrange by it, so we get a list of the tallest people (in cm)
 
 heights %>% 
   mutate(heightcm = height * 2.54) %>% 
@@ -271,15 +274,9 @@ The last key verb is `summarise()`. It collapses a data frame to a single row.
 The `summarise()` function is most useful when we pair it with `group_by()`. This changes the unit of analysis from the complete dataset to individual groups. Say we want to know the average age of each sex group (males and females)
 
 ```{r}
-# group the heights data by sex
 
-by_sex <- group_by(heights, sex)
 
-# summarise each sex by the mean age
-
-summarise(by_sex,mean(age))
-
-# group this with the pipe, much more efficient
+# group this with the pipe
 
 heights %>% 
   group_by(sex) %>% 

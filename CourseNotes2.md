@@ -42,7 +42,7 @@ install.packages("fortunes",repos="https://cloud.r-project.org")
 ## package 'fortunes' successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-## 	C:\Users\Rasmus\AppData\Local\Temp\RtmpKYdoiU\downloaded_packages
+## 	C:\Users\Rasmus\AppData\Local\Temp\Rtmpmisdf3\downloaded_packages
 ```
 
 After installing, we *load* the package using the `library()` function, as so.
@@ -67,10 +67,11 @@ fortune()
 
 ```
 ## 
-## Overall, SAS is about 11 years behind R and S-Plus in statistical capabilities
-## (last year it was about 10 years behind) in my estimation.
-##    -- Frank Harrell (SAS User, 1969-1991)
-##       R-help (September 2003)
+## As one of the developers of the nls function I would like to state that the
+## lack of automatic ANOVA, R^2 and adj. R^2 from nls is a feature, not a bug :-)
+##    -- Douglas Bates (in reply to a request for automatic ANOVA of NLS models as
+##       in Statistica)
+##       R-help (August 2000)
 ```
 
 ### Tidyverse
@@ -90,7 +91,7 @@ install.packages("tidyverse",repos="https://cloud.r-project.org")
 ## package 'tidyverse' successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-## 	C:\Users\Rasmus\AppData\Local\Temp\RtmpKYdoiU\downloaded_packages
+## 	C:\Users\Rasmus\AppData\Local\Temp\Rtmpmisdf3\downloaded_packages
 ```
 
 ```r
@@ -193,9 +194,39 @@ These functions all have similar syntax: once you’ve mastered one, you can use
 
 Let's work with the `read_csv` option first: Often you'll be loading in Comma-separated values (.csv) files, basically slimmed-down Excel files.
 
-The first argument to read_csv() is the most important: it’s the path to the file to read. You have to put the data somewhere useful for the package to load your data. 
+The first argument to read_csv() is the most important: it’s the path to the file to read.
 
-One common thing to do can do is place it right next to your R project files. R's starting point when load files is that they are placed in the R project folder, so that you can easily read it:
+The `read_csv()` function can read both from online and from an online location - with a URL - or from your local data.
+
+Let's try loading .csv file called heights.csv from an online location, and saving that to an object called `heights`
+
+
+```r
+heights <- read_csv("https://raw.githubusercontent.com/phdskat/RCrashcourse2/main/heights.csv")
+```
+
+```
+## Rows: 1192 Columns: 6
+```
+
+```
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr (2): sex, race
+## dbl (4): earn, height, ed, age
+```
+
+```
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+We can do the exact same from your loca data - if you download the `heights.csv` file from the [RCrashcourse2 repository](https://github.com/phdskat/RCrashcourse2).
+
+You then have to put the data somewhere useful for the package to load your data. 
+
+One common thing to do can do is place it right next to your R project files, if you have set up an R project. R's starting point when load files is that they are placed in the R project folder, so that you can easily read it:
 
 
 ```r
@@ -271,7 +302,7 @@ The point of the pipe is to help you write code in a way that is easier to read 
 
 
 ```r
-# To see the head() or our data, we can either do this:
+# To see the head() or our data, we can either do this, which is the old way of doing things:
 
 head(heights)
 ```
@@ -289,7 +320,7 @@ head(heights)
 ```
 
 ```r
-# Or we can pass the data object, with the pipe, to the head() function. It's the same outcome.
+# Or we can pass the data object, with the pipe, to the head() function. It's the same outcome. We will use this going forward.
 
 heights %>% head()
 ```
@@ -306,6 +337,8 @@ heights %>% head()
 ## 6  9000   64.4 female    15    26 white
 ```
 
+### Then pull request it into Florian's github
+
 This is trivial when doing single operations, but when you do multiple ones, as we'll see below, it is incredibly useful!
 
 ### Filtering
@@ -314,39 +347,6 @@ This is trivial when doing single operations, but when you do multiple ones, as 
 
 
 ```r
-# old school way
-
-filter(heights, age == 45)
-```
-
-```
-## # A tibble: 19 x 6
-##      earn height sex       ed   age race    
-##     <dbl>  <dbl> <chr>  <dbl> <dbl> <chr>   
-##  1  50000   74.4 male      16    45 white   
-##  2  34000   72.1 male      12    45 white   
-##  3  60000   74.0 male      13    45 white   
-##  4 125000   74.3 male      18    45 white   
-##  5 170000   71.0 male      18    45 white   
-##  6  22000   73.5 female    14    45 white   
-##  7  12000   67.6 female    12    45 white   
-##  8  35000   72.4 male      15    45 white   
-##  9  18000   71.1 male      16    45 white   
-## 10  21000   67.4 female    12    45 white   
-## 11  33000   66.4 female    12    45 black   
-## 12   8000   63.2 female     9    45 white   
-## 13  19000   62.7 female    15    45 hispanic
-## 14  18000   60.8 female    14    45 white   
-## 15  25000   64.3 female    14    45 white   
-## 16  36000   63.4 female    16    45 white   
-## 17  19000   68.1 female    13    45 white   
-## 18   4000   64.2 female    16    45 white   
-## 19  60000   71.8 male      12    45 white
-```
-
-```r
-# with the pipe
-
 heights %>% filter(age==45)
 ```
 
@@ -379,8 +379,6 @@ When you run that line of code, the `dplyr` package in tidyverse executes the fi
 
 
 ```r
-age45 <- filter(heights, age == 45)
-
 age45 <- heights %>% filter(age == 45)
 ```
 
@@ -388,27 +386,6 @@ age45 <- heights %>% filter(age == 45)
 
 `arrange()` works similarly to `filter()` except that instead of selecting rows, it changes their order. It takes a data frame and a set of column names (or more complicated expressions) to order by. If you provide more than one column name, each additional column will be used to break ties in the values of preceding columns:
 
-
-```r
-arrange(heights,age)
-```
-
-```
-## # A tibble: 1,192 x 6
-##     earn height sex       ed   age race 
-##    <dbl>  <dbl> <chr>  <dbl> <dbl> <chr>
-##  1  3500   71.6 male      10    18 white
-##  2  4000   72.7 male      13    18 white
-##  3 15000   68.5 female    12    18 white
-##  4  1000   64.7 female    12    18 white
-##  5   600   70.2 female    12    18 black
-##  6  3000   70.6 male      11    18 black
-##  7  5000   62.5 female    12    18 white
-##  8  1000   64.7 female    12    18 white
-##  9  1000   65.5 male      12    18 white
-## 10 50000   69.1 male      11    18 white
-## # ... with 1,182 more rows
-```
 
 ```r
 heights %>% arrange(age)
@@ -433,27 +410,6 @@ heights %>% arrange(age)
 
 Use `desc()` to re-order by a column in descending order:
 
-
-```r
-arrange(heights,desc(age))
-```
-
-```
-## # A tibble: 1,192 x 6
-##     earn height sex       ed   age race 
-##    <dbl>  <dbl> <chr>  <dbl> <dbl> <chr>
-##  1 50000   63.1 female    16    91 other
-##  2 24000   65.0 female    12    91 white
-##  3 27000   73.1 male      12    91 white
-##  4 25000   67.3 male      12    89 white
-##  5 20000   59.6 female    16    88 other
-##  6  5000   63.1 female    10    87 white
-##  7 25000   64.9 male      16    86 white
-##  8  4500   58.0 female     5    85 white
-##  9 35000   69.9 male       9    84 white
-## 10 25000   58.9 female    15    83 white
-## # ... with 1,182 more rows
-```
 
 ```r
 heights %>% arrange(desc(age))
@@ -510,30 +466,7 @@ Besides selecting sets of existing columns, it’s often useful to add new colum
 
 
 ```r
-# add a new column calculating the height of each person in cm
-
-mutate(heights, heightcm = height * 2.54)
-```
-
-```
-## # A tibble: 1,192 x 7
-##     earn height sex       ed   age race     heightcm
-##    <dbl>  <dbl> <chr>  <dbl> <dbl> <chr>       <dbl>
-##  1 50000   74.4 male      16    45 white        189.
-##  2 60000   65.5 female    16    58 white        166.
-##  3 30000   63.6 female    16    29 white        162.
-##  4 50000   63.1 female    16    91 other        160.
-##  5 51000   63.4 female    17    39 white        161.
-##  6  9000   64.4 female    15    26 white        164.
-##  7 29000   61.7 female    12    49 white        157.
-##  8 32000   72.7 male      17    46 white        185.
-##  9  2000   72.0 male      15    21 hispanic     183.
-## 10 27000   72.2 male      12    26 white        183.
-## # ... with 1,182 more rows
-```
-
-```r
-# or we can use the pipe to first add a new column, then arrange by it, so we get a list of the tallest people (in cm)
+# we can use the pipe to first add a new column, then arrange by it, so we get a list of the tallest people (in cm)
 
 heights %>% 
   mutate(heightcm = height * 2.54) %>% 
@@ -565,25 +498,7 @@ The `summarise()` function is most useful when we pair it with `group_by()`. Thi
 
 
 ```r
-# group the heights data by sex
-
-by_sex <- group_by(heights, sex)
-
-# summarise each sex by the mean age
-
-summarise(by_sex,mean(age))
-```
-
-```
-## # A tibble: 2 x 2
-##   sex    `mean(age)`
-##   <chr>        <dbl>
-## 1 female        42.3
-## 2 male          40.2
-```
-
-```r
-# group this with the pipe, much more efficient
+# group this with the pipe
 
 heights %>% 
   group_by(sex) %>% 
@@ -704,7 +619,7 @@ ggplot(data = heights) +
   geom_point(mapping = aes(x = sex, y = earn))
 ```
 
-![](CourseNotes2_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](CourseNotes2_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
 
 The plot shows a strong relationship between sex and earnings. In simple terms, males tend to earn more than women. Does this confirm or refute your hypothesis?
 
